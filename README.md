@@ -56,28 +56,30 @@ git clone https://github.com/yourusername/dotnet_tools.nvim ~/.config/nvim/lua/d
 🚀 Usage
 Test Utilities (tests.lua)
 
+```lua
 -- Run test under cursor
 :lua require("dotnet_tools.tests").test_under_cursor()
 
 -- Generate test command string for copy/paste
 :lua print(require("dotnet_tools.tests").test_string())
-
+```
 Build Tool (build.lua)
-
+```lua
 -- Build the current C# project
 :lua require("dotnet_tools.build").build_current_project()
-
+```
 Add Project References (reference.lua)
+```lua
 -- Launch Telescope UI to add project references
 :lua require("dotnet_tools.reference").AddDotnetProjectReferences()
-
+```
 Entity Framework CLI Helper (csharp_eframework.lua)
+```lua
 -- Add migration
 :lua Add_migration("MigrationName", "YourProject.csproj", "StartupProject.csproj", "Migrations/")
-
 -- Generate migration script
 :lua Generate_migration_script("Initial", "Current", "YourProject.csproj", "StartupProject.csproj", "Scripts/")
-
+```
 snippets.lua
 Keybindings (normal mode):
 
