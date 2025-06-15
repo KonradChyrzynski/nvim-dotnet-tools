@@ -83,18 +83,19 @@ Entity Framework CLI Helper (csharp_eframework.lua)
 snippets.lua
 Keybindings (normal mode):
 
-Keybinding	Description
-<leader>ns	Create namespace
-<leader>cs	Create class
-<leader>cc	Create constructor
-<leader>ie	Create interface
-<leader>nf	Create public function
-<leader>af	Create async function
-<leader>prf	Create private function
-<leader>sf	Create static function
-<leader>nasf	Create async static function
-<leader>rsf	Create private static function
-<leader>if	Insert if () {} block
+| Keybinding    | Description                 |
+|---------------|-----------------------------|
+| `<leader>ns`  | Create namespace            |
+| `<leader>cs`  | Create class                |
+| `<leader>cc`  | Create constructor          |
+| `<leader>ie`  | Create interface            |
+| `<leader>nf`  | Create public function      |
+| `<leader>af`  | Create async function       |
+| `<leader>prf` | Create private function     |
+| `<leader>sf`  | Create static function      |
+| `<leader>nasf`| Create async static function|
+| `<leader>rsf` | Create private static function |
+| `<leader>if`  | Insert `if () {}` block     |
 
 📌 Notes
 All commands use the nearest .csproj found within 5 parent directories of the current file.
