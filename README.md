@@ -47,6 +47,7 @@ Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https:/
     -- require or set up if necessary
   end
 }
+```
 
 Or clone it manually:
 
