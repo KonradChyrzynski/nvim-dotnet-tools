@@ -47,7 +47,7 @@ Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https:/
     -- require or set up if necessary
   end
 }
-```lua
+
 Or clone it manually:
 
 git clone https://github.com/yourusername/dotnet_tools.nvim ~/.config/nvim/lua/dotnet_tools
@@ -55,17 +55,14 @@ git clone https://github.com/yourusername/dotnet_tools.nvim ~/.config/nvim/lua/d
 🚀 Usage
 Test Utilities (tests.lua)
 
-```lua
 -- Run test under cursor
 :lua require("dotnet_tools.tests").test_under_cursor()
 
 -- Generate test command string for copy/paste
 :lua print(require("dotnet_tools.tests").test_string())
-```lua
 
 Build Tool (build.lua)
 
-```lua
 -- Build the current C# project
 :lua require("dotnet_tools.build").build_current_project()
 
@@ -79,7 +76,6 @@ Entity Framework CLI Helper (csharp_eframework.lua)
 
 -- Generate migration script
 :lua Generate_migration_script("Initial", "Current", "YourProject.csproj", "StartupProject.csproj", "Scripts/")
-```lua
 
 snippets.lua
 Keybindings (normal mode):
