@@ -38,11 +38,11 @@ This plugin should be placed under your Neovim Lua config directory, e.g.:
 
 ## ⚙️ Installation
 
-Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https://github.com/folke/lazy.nvim):
+Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https://github.com/folke/lazy.nvim): -> This might not work yet, use the manual installation.
 
 ```lua
 {
-  "yourgithub/dotnet_tools.nvim",
+  "KonradChyrzynski/dotnet_tools.nvim",
   config = function()
     -- require or set up if necessary
   end
