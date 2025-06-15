@@ -28,10 +28,10 @@ This plugin should be placed under your Neovim Lua config directory, e.g.:
 |-----------------------------|--------------------------------------------------------------|----------------|
 | `finder.lua`                | Finds nearest `.csproj` file relative to current buffer      | ✅ Finished     |
 | `build.lua`                 | Builds the current project using the nearest `.csproj`       | ✅ Finished     |
-| `tests.lua`                 | Runs tests under cursor / generates test commands            | ✅ Finished     |
-| `snippets.lua`              | Inserts boilerplate C# code with smart cursor movement       | ✅ Finished     |
+| `tests.lua`                 | Runs tests under cursor / generates test commands            | 🚧 In Progress    |
+| `snippets.lua`              | Inserts boilerplate C# code with smart cursor movement       | 🚧 In Progress   |
 | `reference.lua`             | Adds project references interactively using Telescope         | ✅ Finished     |
-| `csharp_eframework.lua`     | Run EF Core commands like migration and script generation     | ✅ Finished     |
+| `csharp_eframework.lua`     | Run EF Core commands like migration and script generation     | 🚧 In Progress  |
 | `ui.lua`                    | Placeholder for popup UI logic (planned)                     | 🚧 In Progress |
 
 ---
