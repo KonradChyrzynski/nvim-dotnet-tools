@@ -1,4 +1,6 @@
-function CreateCsharpNamespaceSnippet()
+local M = {}
+
+function M.CreateCsharpNamespaceSnippet()
     local snippet = "namespace Edit {}"
     vim.api.nvim_put({snippet}, "l", true, true)
 
@@ -12,7 +14,7 @@ function CreateCsharpNamespaceSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpClassSnippet()
+function M.CreateCsharpClassSnippet()
     local filepath = vim.fn.getreg('%')
     local base_name = vim.fn.fnamemodify(filepath, ":t:r")
 
@@ -28,7 +30,7 @@ function CreateCsharpClassSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpConstructor()
+function M.CreateCsharpConstructor()
     local filepath = vim.fn.getreg('%')
     local base_name = vim.fn.fnamemodify(filepath, ":t:r")
 
@@ -46,7 +48,7 @@ function CreateCsharpConstructor()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpInterfaceSnippet()
+function M.CreateCsharpInterfaceSnippet()
     local filepath = vim.fn.getreg('%')
     local base_name = vim.fn.fnamemodify(filepath, ":t:r")
 
@@ -62,7 +64,7 @@ function CreateCsharpInterfaceSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpFuncitonSnippet()
+function M.CreateCsharpFuncitonSnippet()
 
     local function_name = vim.fn.input("Enter function name: ")
 
@@ -81,7 +83,7 @@ function CreateCsharpFuncitonSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpAsycFuncitonSnippet()
+function M.CreateCsharpAsycFuncitonSnippet()
 
     local function_name = vim.fn.input("Enter function name: ")
 
@@ -100,7 +102,7 @@ function CreateCsharpAsycFuncitonSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpStaticFuncitonSnippet()
+function M.CreateCsharpStaticFuncitonSnippet()
 
     local function_name = vim.fn.input("Enter function name: ")
 
@@ -121,7 +123,7 @@ function CreateCsharpStaticFuncitonSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpAsyncStaticFuncitonSnippet()
+function M.CreateCsharpAsyncStaticFuncitonSnippet()
 
     local function_name = vim.fn.input("Enter function name: ")
 
@@ -142,7 +144,7 @@ function CreateCsharpAsyncStaticFuncitonSnippet()
 end
 
 
-function CreateCsharpPrivateFuncitonSnippet()
+function M.CreateCsharpPrivateFuncitonSnippet()
     local function_name = vim.fn.input("Enter function name: ")
 
     local snippet = "private void ".. function_name .. "() {}"
@@ -163,7 +165,7 @@ function CreateCsharpPrivateFuncitonSnippet()
 end
 
 
-function CreateCsharpPrivateStaticFuncitonSnippet()
+function M.CreateCsharpPrivateStaticFuncitonSnippet()
     -- Use vim.fn.input() to prompt the user for a function name
     local function_name = vim.fn.input("Enter function name: ")
 
@@ -184,7 +186,7 @@ function CreateCsharpPrivateStaticFuncitonSnippet()
     vim.api.nvim_feedkeys('ci{', 'n', false)
 end
 
-function CreateCsharpIfSnippet()
+function M.CreateCsharpIfSnippet()
     local snippet = "if () {}"
     vim.api.nvim_put({snippet}, "l", true, true)
 
@@ -196,17 +198,4 @@ function CreateCsharpIfSnippet()
     vim.api.nvim_feedkeys('ci(', 'n', false)
 end
 
-vim.api.nvim_set_keymap('n', '<leader>ns', ':lua CreateCsharpNamespaceSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>cs', ':lua CreateCsharpClassSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>cc', ':lua CreateCsharpConstructor()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>ie', ':lua CreateCsharpInterfaceSnippet()<CR>', { noremap = true, silent = true })
-
---Function snippets
-vim.api.nvim_set_keymap('n', '<leader>nf', ':lua CreateCsharpFuncitonSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>af', ':lua CreateCsharpAsycFuncitonSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>prf', ':lua CreateCsharpPrivateFuncitonSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sf', ':lua CreateCsharpStaticFuncitonSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>nasf', ':lua CreateCsharpAsyncStaticFuncitonSnippet()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>rsf', ':lua CreateCsharpPrivateStaticFuncitonSnippet()<CR>', { noremap = true, silent = true })
---Function snippets
-vim.api.nvim_set_keymap('n', '<leader>if', ':lua CreateCsharpIfSnippet()<CR>', { noremap = true, silent = true })
+return M
