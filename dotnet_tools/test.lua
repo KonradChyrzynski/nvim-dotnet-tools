@@ -23,4 +23,3 @@ function M.test_string(no_build) --> Here it might be worth to copy that to the 
 end
 
 return M
-
