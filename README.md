@@ -80,27 +80,49 @@ Entity Framework CLI Helper (csharp_eframework.lua)
 -- Generate migration script
 :lua Generate_migration_script("Initial", "Current", "YourProject.csproj", "StartupProject.csproj", "Scripts/")
 ```
-snippets.lua
-Keybindings (normal mode):
-
-| Keybinding    | Description                 |
-|---------------|-----------------------------|
-| `<leader>ns`  | Create namespace            |
-| `<leader>cs`  | Create class                |
-| `<leader>cc`  | Create constructor          |
-| `<leader>ie`  | Create interface            |
-| `<leader>nf`  | Create public function      |
-| `<leader>af`  | Create async function       |
-| `<leader>prf` | Create private function     |
-| `<leader>sf`  | Create static function      |
-| `<leader>nasf`| Create async static function|
-| `<leader>rsf` | Create private static function |
-| `<leader>if`  | Insert `if () {}` block     |
 
 📌 Notes
 All commands use the nearest .csproj found within 5 parent directories of the current file.
 
 Telescope is required for reference management (dependency on nvim-telescope/telescope.nvim and nvim-lua/plenary.nvim).
+
+Example config:
+```lua
+local dotnet_reference = require("dotnet_tools.reference")
+local dotnet_test = require("dotnet_tools.test")
+local dotnet_build = require("dotnet_tools.build")
+local dotnet_snippets = require("dotnet_tools.snippets")
+
+--Add reference
+vim.api.nvim_create_user_command("DotnetAddReferences", dotnet_reference.AddDotnetProjectReferences, {})
+vim.api.nvim_create_user_command("DotnetSearchCsprojFiles", dotnet_reference.SearchCsprojFiles, {})
+
+local opts = { noremap = true, silent = true }
+
+--Build
+vim.keymap.set("n", "<leader>lb", function() dotnet_build.build_current_project() end, { noremap = true, silent = true })
+
+--Tests
+vim.keymap.set("n", "<leader>tbn", function() dotnet_test.test_under_cursor(false) end, opts)
+vim.keymap.set("n", "<leader>tbcn", function() print(dotnet_test.test_string(false)) end, opts)
+vim.keymap.set("n", "<leader>tn", function() dotnet_test.test_under_cursor(true) end, opts)
+vim.keymap.set("n", "<leader>tcn", function() print(dotnet_test.test_string(true)) end, opts)
+
+vim.keymap.set("n", "<leader>ns", function() dotnet_snippets.CreateCsharpNamespaceSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>cs", function() dotnet_snippets.CreateCsharpClassSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>cc", function() dotnet_snippets.CreateCsharpConstructor() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>ie", function() dotnet_snippets.CreateCsharpInterfaceSnippet() end, { noremap = true, silent = true })
+
+--Function snippets
+vim.keymap.set("n", "<leader>nf", function() dotnet_snippets.CreateCsharpFuncitonSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>af", function() dotnet_snippets.CreateCsharpAsycFuncitonSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>prf", function() dotnet_snippets.CreateCsharpPrivateFuncitonSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>sf", function() dotnet_snippets.CreateCsharpStaticFuncitonSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>nasf", function() dotnet_snippets.CreateCsharpAsyncStaticFuncitonSnippet() end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>rsf", function() dotnet_snippets.CreateCsharpPrivateStaticFuncitonSnippet() end, { noremap = true, silent = true })
+--Function snippets
+vim.keymap.set("n", "<leader>if", function() dotnet_snippets.CreateCsharpIfSnippet() end, { noremap = true, silent = true })
+```
 
 🛠 TODO
  ui.lua: Implement interactive popup-based UI (e.g., for status or input)
