@@ -14,12 +14,14 @@ function M.test_under_cursor(no_build)
     vim.cmd(cmd)
 end
 
-function M.test_string(no_build) --> Here it might be worth to copy that to the system register
+function M.get_test_string(no_build, test_under_cursor)
     local csproj = finder.find_csproj()
     if csproj == "" then return nil end
-    local cmd = "!dotnet test \"" .. csproj .. "\""
+    local cmd = "dotnet test \"" .. csproj .. "\""
     if no_build then cmd = cmd .. " --no-build" end
-    return cmd .. " --filter FullyQualifiedName~" .. vim.fn.expand("<cword>")
+    if test_under_cursor then cmd = cmd .. " --filter FullyQualifiedName~" .. vim.fn.expand("<cword>") end
+    vim.fn.setreg('*', cmd)
+    print("Test string saved: " .. cmd)
 end
 
 return M
