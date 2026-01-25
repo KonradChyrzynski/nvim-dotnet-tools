@@ -116,7 +116,3 @@ vim.keymap.set("n", "<leader>rsf", function() dotnet_snippets.CreateCsharpPrivat
 --Function snippets
 vim.keymap.set("n", "<leader>if", function() dotnet_snippets.CreateCsharpIfSnippet() end, { noremap = true, silent = true })
 ```
-
-🛠 TODO
- ui.lua: Implement interactive popup-based UI (e.g., for status or input)
- Add automated tests
