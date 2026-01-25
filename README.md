@@ -7,7 +7,7 @@ A lightweight Lua plugin for Neovim to improve .NET and C# development workflow.
 ## 📦 Features
 
 - 🔍 Automatically find the nearest `.csproj` file for the current file
-- 🧪 Run individual unit tests under the cursor
+- 🧪 Run individual unit tests under the cursor, or get the dotnet test cli script, for test under coursor
 - 🔨 Build the nearest project
 - 📋 Generate C# code snippets (classes, interfaces, methods, etc.)
 - 🧰 Easily add project references using Telescope UI
