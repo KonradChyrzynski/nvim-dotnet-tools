@@ -15,13 +15,6 @@ A lightweight Lua plugin for Neovim to improve .NET and C# development workflow.
 
 ---
 
-## 📁 Project Structure
-
-This plugin should be placed under your Neovim Lua config directory, e.g.:
-
-~/.config/nvim/lua/dotnet_tools/
-
-
 ### File Overview
 
 | File                        | Description                                                  | Status         |
