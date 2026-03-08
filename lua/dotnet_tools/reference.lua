@@ -35,7 +35,15 @@ function M.run_dotnet_add(main_proj, refs)
 end
 
 function M.run_dotnet_sln_add(sln, refs)
-	local args = { "sln", sln, "add" }
+	M.run_dotnet_sln_command(sln, refs, "add", "added to the solution")
+end
+
+function M.run_dotnet_sln_remove(sln, refs)
+	M.run_dotnet_sln_command(sln, refs, "remove", "removed from the solution")
+end
+
+function M.run_dotnet_sln_command(sln, refs, command, success_msg)
+	local args = { "sln", sln, command }
 	vim.list_extend(args, refs)
 
 	local output = {}
@@ -50,8 +58,8 @@ function M.run_dotnet_sln_add(sln, refs)
 		end,
 		on_exit = vim.schedule_wrap(function(code)
 			local full_output = table.concat(output, "\n")
-			if full_output:match("added to the solution") then
-				vim.notify("Projects(s) added successfully:\n" .. full_output, vim.log.levels.INFO)
+			if full_output:match(success_msg) then
+				vim.notify("Projects(s) " .. success_msg .. full_output, vim.log.levels.INFO)
 			elseif code == 0 then
 				vim.notify("dotnet exited with code 0:\n" .. full_output, vim.log.levels.INFO)
 			else
@@ -100,7 +108,10 @@ function M.pick_projects_to_reference(csproj_files, main_csproj)
 		:find()
 end
 
-function M.pick_projects_to_reference_for_sln(sln)
+--TODO: I think it is possible to also add .sln to solutions, extend it to support the .sln and slnx files
+--It would create a lot of noise in the selector so it might require some selector like 1. csproj 2. all
+--Or 2 different functions
+function M.pick_projects_to_reference_for_sln(sln, add)
 	local csproj_files = {}
 	Job:new({
 		command = "rg",
@@ -143,7 +154,11 @@ function M.pick_projects_to_reference_for_sln(sln)
 								end
 							end
 
-							M.run_dotnet_sln_add(sln, refs)
+							if add == nil or add == true then
+								M.run_dotnet_sln_add(sln, refs)
+							else
+								M.run_dotnet_sln_remove(sln, refs)
+							end
 							actions.close(prompt_bufnr)
 						end)
 
@@ -177,7 +192,7 @@ function M.pick_main_csproj(csproj_files)
 		:find()
 end
 
-function M.pick_main_sln(sln_files)
+function M.pick_main_sln(sln_files, add)
 	pickers
 		.new({}, {
 			prompt_title = "Select Main Solution",
@@ -188,7 +203,7 @@ function M.pick_main_sln(sln_files)
 					local selection = action_state.get_selected_entry(prompt_bufnr)
 					actions.close(prompt_bufnr)
 					local main = selection[1]
-					M.pick_projects_to_reference_for_sln(main)
+					M.pick_projects_to_reference_for_sln(main, add)
 				end)
 				return true
 			end,
@@ -224,13 +239,21 @@ function M.AddDotnetProjectReferences()
 end
 
 function M.AddDotnetProjectReferencesToSln()
+	M.pick_sln_command(true)
+end
+
+function M.RemoveDotnetProjectReferencesFromSln()
+	M.pick_sln_command(false)
+end
+
+function M.pick_sln_command(add)
 	local sln_files = {}
 	Job:new({
 		command = "rg",
 		args = {
 			"--files",
 			"-g",
-			"*.sln",
+			"*.{sln,slnx}",
 			"-g",
 			"!**/bin/**",
 			"-g",
@@ -245,7 +268,7 @@ function M.AddDotnetProjectReferencesToSln()
 				vim.notify("No .sln files found", vim.log.levels.WARN)
 				return
 			end
-			M.pick_main_sln(sln_files)
+			M.pick_main_sln(sln_files, add)
 		end),
 	}):start()
 end
