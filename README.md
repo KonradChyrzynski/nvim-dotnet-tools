@@ -7,20 +7,13 @@ A lightweight Lua plugin for Neovim to improve .NET and C# development workflow.
 ## 📦 Features
 
 - 🔍 Automatically find the nearest `.csproj` file for the current file
-- 🧪 Run individual unit tests under the cursor
+- 🧪 Run individual unit tests under the cursor, or get the dotnet test cli script, for test under coursor
 - 🔨 Build the nearest project
 - 📋 Generate C# code snippets (classes, interfaces, methods, etc.)
 - 🧰 Easily add project references using Telescope UI
 - ⚙️ Execute common Entity Framework Core CLI commands from within Neovim
 
 ---
-
-## 📁 Project Structure
-
-This plugin should be placed under your Neovim Lua config directory, e.g.:
-
-~/.config/nvim/lua/dotnet_tools/
-
 
 ### File Overview
 
@@ -30,7 +23,7 @@ This plugin should be placed under your Neovim Lua config directory, e.g.:
 | `build.lua`                 | Builds the current project using the nearest `.csproj`       | ✅ Finished     |
 | `tests.lua`                 | Runs tests under cursor / generates test commands            | 🚧 In Progress    |
 | `snippets.lua`              | Inserts boilerplate C# code with smart cursor movement       | 🚧 In Progress   |
-| `reference.lua`             | Adds project references interactively using Telescope         | ✅ Finished     |
+| `reference.lua`             | Adds project references interactively using Telescope         | ✅ Finished (Requires changes for .NET 10) |
 | `csharp_eframework.lua`     | Run EF Core commands like migration and script generation     | 🚧 In Progress  |
 | `ui.lua`                    | Placeholder for popup UI logic (planned)                     | 🚧 In Progress |
 
@@ -38,7 +31,7 @@ This plugin should be placed under your Neovim Lua config directory, e.g.:
 
 ## ⚙️ Installation
 
-Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https://github.com/folke/lazy.nvim): -> This might not work yet, use the manual installation.
+Use with your favorite Neovim plugin manager. Example with [`lazy.nvim`](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
@@ -123,7 +116,3 @@ vim.keymap.set("n", "<leader>rsf", function() dotnet_snippets.CreateCsharpPrivat
 --Function snippets
 vim.keymap.set("n", "<leader>if", function() dotnet_snippets.CreateCsharpIfSnippet() end, { noremap = true, silent = true })
 ```
-
-🛠 TODO
- ui.lua: Implement interactive popup-based UI (e.g., for status or input)
- Add automated tests
