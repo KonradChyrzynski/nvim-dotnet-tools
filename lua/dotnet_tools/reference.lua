@@ -7,42 +7,7 @@ local conf = require("telescope.config").values
 
 local M = {}
 
-function M.run_dotnet_add(main_proj, refs)
-	local args = { "add", main_proj, "reference" }
-	vim.list_extend(args, refs)
-
-	local output = {}
-	Job:new({
-		command = "dotnet",
-		args = args,
-		on_stdout = function(_, line)
-			table.insert(output, line)
-		end,
-		on_stderr = function(_, line)
-			table.insert(output, "[ERR] " .. line)
-		end,
-		on_exit = vim.schedule_wrap(function(code)
-			local full_output = table.concat(output, "\n")
-			if full_output:match("added to the project") then
-				vim.notify("Reference(s) added successfully:\n" .. full_output, vim.log.levels.INFO)
-			elseif code == 0 then
-				vim.notify("dotnet exited with code 0:\n" .. full_output, vim.log.levels.INFO)
-			else
-				vim.notify("dotnet failed:\n" .. full_output, vim.log.levels.ERROR)
-			end
-		end),
-	}):start()
-end
-
-function M.run_dotnet_sln_add(sln, refs)
-	M.run_dotnet_sln_command(sln, refs, "add", "added to the solution")
-end
-
-function M.run_dotnet_sln_remove(sln, refs)
-	M.run_dotnet_sln_command(sln, refs, "remove", "removed from the solution")
-end
-
-function M.run_dotnet_sln_command(sln, refs, command, success_msg)
+local function run_dotnet_sln_command(sln, refs, command, success_msg)
 	local args = { "sln", sln, command }
 	vim.list_extend(args, refs)
 
@@ -69,7 +34,42 @@ function M.run_dotnet_sln_command(sln, refs, command, success_msg)
 	}):start()
 end
 
-function M.pick_projects_to_reference(csproj_files, main_csproj)
+local function run_dotnet_sln_add(sln, refs)
+	run_dotnet_sln_command(sln, refs, "add", "added to the solution")
+end
+
+local function run_dotnet_sln_remove(sln, refs)
+	run_dotnet_sln_command(sln, refs, "remove", "removed from the solution")
+end
+
+local function run_dotnet_add(main_proj, refs)
+	local args = { "add", main_proj, "reference" }
+	vim.list_extend(args, refs)
+
+	local output = {}
+	Job:new({
+		command = "dotnet",
+		args = args,
+		on_stdout = function(_, line)
+			table.insert(output, line)
+		end,
+		on_stderr = function(_, line)
+			table.insert(output, "[ERR] " .. line)
+		end,
+		on_exit = vim.schedule_wrap(function(code)
+			local full_output = table.concat(output, "\n")
+			if full_output:match("added to the project") then
+				vim.notify("Reference(s) added successfully:\n" .. full_output, vim.log.levels.INFO)
+			elseif code == 0 then
+				vim.notify("dotnet exited with code 0:\n" .. full_output, vim.log.levels.INFO)
+			else
+				vim.notify("dotnet failed:\n" .. full_output, vim.log.levels.ERROR)
+			end
+		end),
+	}):start()
+end
+
+local function pick_projects_to_reference(csproj_files, main_csproj)
 	local other_projects = vim.tbl_filter(function(p)
 		return p ~= main_csproj
 	end, csproj_files)
@@ -95,7 +95,7 @@ function M.pick_projects_to_reference(csproj_files, main_csproj)
 						end
 					end
 
-					M.run_dotnet_add(main_csproj, refs)
+					run_dotnet_add(main_csproj, refs)
 					actions.close(prompt_bufnr)
 				end)
 
@@ -111,7 +111,7 @@ end
 --TODO: I think it is possible to also add .sln to solutions, extend it to support the .sln and slnx files
 --It would create a lot of noise in the selector so it might require some selector like 1. csproj 2. all
 --Or 2 different functions
-function M.pick_projects_to_reference_for_sln(sln, add)
+local function pick_projects_to_reference_for_sln(sln, add)
 	local csproj_files = {}
 	Job:new({
 		command = "rg",
@@ -155,9 +155,9 @@ function M.pick_projects_to_reference_for_sln(sln, add)
 							end
 
 							if add == nil or add == true then
-								M.run_dotnet_sln_add(sln, refs)
+								run_dotnet_sln_add(sln, refs)
 							else
-								M.run_dotnet_sln_remove(sln, refs)
+								run_dotnet_sln_remove(sln, refs)
 							end
 							actions.close(prompt_bufnr)
 						end)
@@ -173,7 +173,7 @@ function M.pick_projects_to_reference_for_sln(sln, add)
 	}):start()
 end
 
-function M.pick_main_csproj(csproj_files)
+local function pick_main_csproj(csproj_files)
 	pickers
 		.new({}, {
 			prompt_title = "Select Main Project",
@@ -184,7 +184,7 @@ function M.pick_main_csproj(csproj_files)
 					local selection = action_state.get_selected_entry(prompt_bufnr)
 					actions.close(prompt_bufnr)
 					local main = selection[1]
-					M.pick_projects_to_reference(csproj_files, main)
+					pick_projects_to_reference(csproj_files, main)
 				end)
 				return true
 			end,
@@ -192,7 +192,7 @@ function M.pick_main_csproj(csproj_files)
 		:find()
 end
 
-function M.pick_main_sln(sln_files, add)
+local function pick_main_sln(sln_files, add)
 	pickers
 		.new({}, {
 			prompt_title = "Select Main Solution",
@@ -203,12 +203,39 @@ function M.pick_main_sln(sln_files, add)
 					local selection = action_state.get_selected_entry(prompt_bufnr)
 					actions.close(prompt_bufnr)
 					local main = selection[1]
-					M.pick_projects_to_reference_for_sln(main, add)
+					pick_projects_to_reference_for_sln(main, add)
 				end)
 				return true
 			end,
 		})
 		:find()
+end
+
+local function pick_sln_command(add)
+	local sln_files = {}
+	Job:new({
+		command = "rg",
+		args = {
+			"--files",
+			"-g",
+			"*.{sln,slnx}",
+			"-g",
+			"!**/bin/**",
+			"-g",
+			"!**/obj/**",
+			"--no-ignore",
+		},
+		on_stdout = function(_, line)
+			table.insert(sln_files, line)
+		end,
+		on_exit = vim.schedule_wrap(function()
+			if #sln_files == 0 then
+				vim.notify("No .sln files found", vim.log.levels.WARN)
+				return
+			end
+			pick_main_sln(sln_files, add)
+		end),
+	}):start()
 end
 
 function M.AddDotnetProjectReferences()
@@ -233,84 +260,17 @@ function M.AddDotnetProjectReferences()
 				vim.notify("No .csproj files found", vim.log.levels.WARN)
 				return
 			end
-			M.pick_main_csproj(csproj_files)
+			pick_main_csproj(csproj_files)
 		end),
 	}):start()
 end
 
 function M.AddDotnetProjectReferencesToSln()
-	M.pick_sln_command(true)
+	pick_sln_command(true)
 end
 
 function M.RemoveDotnetProjectReferencesFromSln()
-	M.pick_sln_command(false)
-end
-
-function M.pick_sln_command(add)
-	local sln_files = {}
-	Job:new({
-		command = "rg",
-		args = {
-			"--files",
-			"-g",
-			"*.{sln,slnx}",
-			"-g",
-			"!**/bin/**",
-			"-g",
-			"!**/obj/**",
-			"--no-ignore",
-		},
-		on_stdout = function(_, line)
-			table.insert(sln_files, line)
-		end,
-		on_exit = vim.schedule_wrap(function()
-			if #sln_files == 0 then
-				vim.notify("No .sln files found", vim.log.levels.WARN)
-				return
-			end
-			M.pick_main_sln(sln_files, add)
-		end),
-	}):start()
-end
-
-function M.SearchCsprojFiles()
-	local results = {}
-
-	Job:new({
-		command = "rg",
-		args = {
-			"--files",
-			"-g",
-			"*.csproj",
-			"-g",
-			"!**/bin/**",
-			"--no-ignore",
-		},
-		on_stdout = function(_, line)
-			table.insert(results, {
-				filename = line,
-				lnum = 1,
-				col = 1,
-				text = line,
-			})
-		end,
-		on_exit = function()
-			if #results == 0 then
-				vim.schedule(function()
-					vim.api.nvim_out_write("No .csproj files found\n")
-				end)
-				return
-			end
-
-			vim.schedule(function()
-				vim.fn.setqflist({}, " ", {
-					title = ".csproj files",
-					items = results,
-				})
-				vim.cmd("copen")
-			end)
-		end,
-	}):start()
+	pick_sln_command(false)
 end
 
 return M
