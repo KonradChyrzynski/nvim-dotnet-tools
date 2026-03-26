@@ -173,7 +173,7 @@ local function pick_projects_to_reference_for_sln(sln, add)
 	}):start()
 end
 
-local function pick_main_csproj(csproj_files)
+local function pick_main_csproj_for_reference(csproj_files)
 	pickers
 		.new({}, {
 			prompt_title = "Select Main Project",
@@ -238,7 +238,7 @@ local function pick_sln_command(add)
 	}):start()
 end
 
-function M.AddDotnetProjectReferences()
+function M.search_for_csproj_files(callback)
 	local csproj_files = {}
 	Job:new({
 		command = "rg",
@@ -260,9 +260,13 @@ function M.AddDotnetProjectReferences()
 				vim.notify("No .csproj files found", vim.log.levels.WARN)
 				return
 			end
-			pick_main_csproj(csproj_files)
+			callback(csproj_files)
 		end),
 	}):start()
+end
+
+function M.AddDotnetProjectReferences()
+    M.search_for_csproj_files(pick_main_csproj_for_reference)
 end
 
 function M.AddDotnetProjectReferencesToSln()
