@@ -1,4 +1,4 @@
-local reference = require("reference")
+local dotnet_finders = require("finder")
 local Job = require("plenary.job")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
@@ -110,7 +110,7 @@ local function pick_startup_project_for_reference(csproj_files)
 end
 
 function AddTemp()
-    reference.search_for_csproj_files(pick_startup_project_for_reference)
+    dotnet_finders.search_for_csproj_files(pick_startup_project_for_reference)
 end
 
 return M
