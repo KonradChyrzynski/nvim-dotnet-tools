@@ -75,7 +75,7 @@ local function pick_db_context_project(csproj_files, main_csproj, command)
                     local startup_project_directory = vim.fn.fnamemodify(main_csproj, ":p:h")
 
                     if command == "add migration" then
-                        M.add_migration()
+                        M.add_migration("Temp name from", db_context_project, startup_project_directory, "C:\\ef_test")
                     end
 
 				end)
