@@ -4,6 +4,7 @@ local finders = require("telescope.finders")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
+local dotnet_finders = require("finder")
 
 local M = {}
 
@@ -238,35 +239,8 @@ local function pick_sln_command(add)
 	}):start()
 end
 
-function M.search_for_csproj_files(callback)
-	local csproj_files = {}
-	Job:new({
-		command = "rg",
-		args = {
-			"--files",
-			"-g",
-			"*.csproj",
-			"-g",
-			"!**/bin/**",
-			"-g",
-			"!**/obj/**",
-			"--no-ignore",
-		},
-		on_stdout = function(_, line)
-			table.insert(csproj_files, line)
-		end,
-		on_exit = vim.schedule_wrap(function()
-			if #csproj_files == 0 then
-				vim.notify("No .csproj files found", vim.log.levels.WARN)
-				return
-			end
-			callback(csproj_files)
-		end),
-	}):start()
-end
-
 function M.AddDotnetProjectReferences()
-    M.search_for_csproj_files(pick_main_csproj_for_reference)
+    dotnet_finders.search_for_csproj_files(pick_main_csproj_for_reference)
 end
 
 function M.AddDotnetProjectReferencesToSln()
