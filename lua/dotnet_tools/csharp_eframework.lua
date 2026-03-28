@@ -1,3 +1,11 @@
+local reference = require("reference")
+local Job = require("plenary.job")
+local pickers = require("telescope.pickers")
+local finders = require("telescope.finders")
+local actions = require("telescope.actions")
+local action_state = require("telescope.actions.state")
+local conf = require("telescope.config").values
+
 --[[
 EF CORE PARAMETERS EXPLAINED:
 -----------------------------
@@ -35,14 +43,74 @@ end
 
 -- Example usage: Running a migration command
 function M.add_migration(migration_name, project_path, startup_project_path, output_path)
+    --TODO: Get migration name from user input
 	local command = string.format("migrations add %s", migration_name)
 	M.run_dotnet_ef_command(command, project_path, startup_project_path, output_path)
 end
 
 -- Example usage: Running a script generation command
 function M.generate_migration_script(from_migration, to_migration, project_path, startup_project_path, output_path)
+    -- TODO: Add search for migration names
 	local command = string.format("migrations script %s %s", from_migration, to_migration)
 	M.run_dotnet_ef_command(command, project_path, startup_project_path, output_path)
+end
+
+local function pick_db_context_project(csproj_files, main_csproj, command)
+	local other_projects = vim.tbl_filter(function(p)
+		return p ~= main_csproj
+	end, csproj_files)
+
+	pickers
+		.new({}, {
+			prompt_title = "Select db context project",
+			finder = finders.new_table({ results = other_projects }),
+			sorter = conf.generic_sorter({}),
+			attach_mappings = function(prompt_bufnr, map)
+
+				actions.select_default:replace(function()
+					local selection = action_state.get_selected_entry(prompt_bufnr)
+					actions.close(prompt_bufnr)
+
+					local db_context_project = vim.fn.fnamemodify(selection[1], ":p:h")
+                    local startup_project_directory = vim.fn.fnamemodify(main_csproj, ":p:h")
+
+                    if command == "add migration" then
+                        M.add_migration()
+                    end
+
+				end)
+
+				map("i", "<CR>", actions.select_default)
+				map("i", "<Tab>", actions.toggle_selection + actions.move_selection_worse)
+				map("i", "<S-Tab>", actions.toggle_selection + actions.move_selection_better)
+				return true
+			end,
+		})
+		:find()
+
+end
+
+local function pick_startup_project_for_reference(csproj_files)
+	pickers
+		.new({}, {
+			prompt_title = "Select Startup Project",
+			finder = finders.new_table({ results = csproj_files }),
+			sorter = conf.generic_sorter({}),
+			attach_mappings = function(prompt_bufnr, map)
+				actions.select_default:replace(function()
+					local selection = action_state.get_selected_entry(prompt_bufnr)
+					actions.close(prompt_bufnr)
+					local main = selection[1]
+					pick_db_context_project(csproj_files, main)
+				end)
+				return true
+			end,
+		})
+		:find()
+end
+
+function AddTemp()
+    reference.search_for_csproj_files(pick_startup_project_for_reference)
 end
 
 return M
