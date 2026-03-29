@@ -4,7 +4,7 @@ local finders = require("telescope.finders")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
-local dotnet_finders = require("finder")
+local dotnet_finders = require("dotnet_tools.finder")
 
 local M = {}
 
