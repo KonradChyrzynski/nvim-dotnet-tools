@@ -1,5 +1,24 @@
 local M = {}
 
+local function get_inside_curly_braces(snippet)
+	-- Move cousor betwen the curly brackets
+	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+
+	local new_col = col + string.find(snippet, "}") - 1
+
+	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
+	vim.api.nvim_feedkeys("ci{", "n", false)
+end
+
+local function get_inside_braces(snippet)
+	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+
+	local new_col = col + string.find(snippet, "%(")
+
+	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
+	vim.api.nvim_feedkeys("ci(", "n", false)
+end
+
 function M.CreateCsharpNamespaceSnippet()
 	local namespace_name = "Edit"
 
@@ -29,15 +48,7 @@ function M.CreateCsharpNamespaceSnippet()
 	local snippet = string.format("namespace %s {}", namespace_name)
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-	local line_text = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1]
-
-	local closing_bracket_col = string.find(line_text, "}")
-
-	if closing_bracket_col then
-		vim.api.nvim_win_set_cursor(0, { row, closing_bracket_col - 1 })
-		vim.api.nvim_feedkeys("ci{", "n", false)
-	end
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpClassSnippet()
@@ -48,12 +59,7 @@ function M.CreateCsharpClassSnippet()
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
 	-- Move cousor betwen the curly brackets
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	local new_col = col + string.find(snippet, "}") - 1
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpConstructor()
@@ -64,14 +70,7 @@ function M.CreateCsharpConstructor()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	-- Move cousor betwen the curly brackets
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	local new_col = col + string.find(snippet, "}") - 1
-
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpInterfaceSnippet()
@@ -81,13 +80,7 @@ function M.CreateCsharpInterfaceSnippet()
 	local snippet = "public interface " .. base_name .. " {}"
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	-- Move cousor betwen the curly brackets
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	local new_col = col + string.find(snippet, "}") - 1
-
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpFuncitonSnippet()
@@ -97,16 +90,9 @@ function M.CreateCsharpFuncitonSnippet()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
+
 
 function M.CreateCsharpAsycFuncitonSnippet()
 	local function_name = vim.fn.input("Enter function name: ")
@@ -115,15 +101,7 @@ function M.CreateCsharpAsycFuncitonSnippet()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpStaticFuncitonSnippet()
@@ -133,16 +111,7 @@ function M.CreateCsharpStaticFuncitonSnippet()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	-- Enter insert mode to allow the user to type the function name
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpAsyncStaticFuncitonSnippet()
@@ -154,14 +123,7 @@ function M.CreateCsharpAsyncStaticFuncitonSnippet()
 
 	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	-- Enter insert mode to allow the user to type the function name
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpPrivateFuncitonSnippet()
@@ -171,17 +133,7 @@ function M.CreateCsharpPrivateFuncitonSnippet()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-	-- Get the current cursor position (row and column)
-
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	-- Enter insert mode to allow the user to type the function name
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpPrivateStaticFuncitonSnippet()
@@ -192,29 +144,14 @@ function M.CreateCsharpPrivateStaticFuncitonSnippet()
 
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-	-- Get the current cursor position (row and column)
-
-	-- Calculate the new column position (position of the first parenthesis + 1)
-	local new_col = col + string.find(snippet, "}") - 1
-
-	-- Set the cursor position to the correct place (row stays the same, column is new_col)
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-
-	-- Enter insert mode to allow the user to type the function name
-	vim.api.nvim_feedkeys("ci{", "n", false)
+    get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpIfSnippet()
 	local snippet = "if () {}"
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-
-	local new_col = col + string.find(snippet, "%(")
-
-	vim.api.nvim_win_set_cursor(0, { row - 1, new_col })
-	vim.api.nvim_feedkeys("ci(", "n", false)
+    get_inside_braces(snippet)
 end
 
 return M
