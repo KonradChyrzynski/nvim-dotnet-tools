@@ -1,10 +1,10 @@
-local dotnet_finders = require("finder")
 local Job = require("plenary.job")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
+local dotnet_finders = require("dotnet_tools.finder")
 
 --[[
 EF CORE PARAMETERS EXPLAINED:
@@ -74,9 +74,17 @@ local function pick_db_context_project(csproj_files, main_csproj, command)
 					local db_context_project = vim.fn.fnamemodify(selection[1], ":p:h")
                     local startup_project_directory = vim.fn.fnamemodify(main_csproj, ":p:h")
 
-                    if command == "add migration" then
-                        M.add_migration("Temp name from", db_context_project, startup_project_directory, "C:\\ef_test")
-                    end
+                    command = "add"
+
+                    if command == "add" then
+						vim.ui.input({ prompt = "Migration name: " }, function(input)
+							if input and input ~= "" then
+								M.add_migration(input, db_context_project, startup_project_directory, "C:\\Users\\KonradChyrzynski\\OneDrive\\MyApps\\EntityFrameworkPlayground\\Shared.API\\EfScripts")
+							else
+								vim.notify("Migration cancelled or name is empty.", vim.log.levels.WARN)
+							end
+						end)
+					end
 
 				end)
 
@@ -109,7 +117,7 @@ local function pick_startup_project_for_reference(csproj_files)
 		:find()
 end
 
-function AddTemp()
+function M.AddTemp()
     dotnet_finders.search_for_csproj_files(pick_startup_project_for_reference)
 end
 
