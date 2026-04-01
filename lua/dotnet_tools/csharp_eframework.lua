@@ -42,10 +42,15 @@ function M.run_dotnet_ef_command(command, project_path, startup_project_path, ou
 end
 
 -- Example usage: Running a migration command
-function M.add_migration(migration_name, project_path, startup_project_path, output_path)
+function M.add_migration_with_startup(migration_name, project_path, startup_project_path, output_path)
     --TODO: Get migration name from user input
 	local command = string.format("migrations add %s", migration_name)
 	M.run_dotnet_ef_command(command, project_path, startup_project_path, output_path)
+end
+
+function M.add_migration(migration_name, project_path, output_path)
+	local command = string.format("migrations add %s", migration_name)
+	M.run_dotnet_ef_command(command, project_path, nil, output_path)
 end
 
 -- Example usage: Running a script generation command
@@ -56,14 +61,10 @@ function M.generate_migration_script(from_migration, to_migration, project_path,
 end
 
 local function pick_db_context_project(csproj_files, main_csproj, command)
-	local other_projects = vim.tbl_filter(function(p)
-		return p ~= main_csproj
-	end, csproj_files)
-
 	pickers
 		.new({}, {
 			prompt_title = "Select db context project",
-			finder = finders.new_table({ results = other_projects }),
+			finder = finders.new_table({ results = csproj_files }),
 			sorter = conf.generic_sorter({}),
 			attach_mappings = function(prompt_bufnr, map)
 
@@ -79,7 +80,7 @@ local function pick_db_context_project(csproj_files, main_csproj, command)
                     if command == "add" then
 						vim.ui.input({ prompt = "Migration name: " }, function(input)
 							if input and input ~= "" then
-								M.add_migration(input, db_context_project, startup_project_directory, "C:\\Users\\KonradChyrzynski\\OneDrive\\MyApps\\EntityFrameworkPlayground\\Shared.API\\EfScripts")
+								M.add_migration_with_startup(input, db_context_project, startup_project_directory, "C:\\Users\\KonradChyrzynski\\OneDrive\\MyApps\\EntityFrameworkPlayground\\Shared.API\\EfScripts")
 							else
 								vim.notify("Migration cancelled or name is empty.", vim.log.levels.WARN)
 							end
