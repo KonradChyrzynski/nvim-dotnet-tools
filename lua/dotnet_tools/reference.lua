@@ -109,9 +109,6 @@ local function pick_projects_to_reference(csproj_files, main_csproj)
 		:find()
 end
 
---TODO: I think it is possible to also add .sln to solutions, extend it to support the .sln and slnx files
---It would create a lot of noise in the selector so it might require some selector like 1. csproj 2. all
---Or 2 different functions
 local function pick_projects_to_reference_for_sln(sln, add)
 	local csproj_files = {}
 	Job:new({

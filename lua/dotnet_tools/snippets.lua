@@ -58,17 +58,30 @@ function M.CreateCsharpClassSnippet()
 	local snippet = "public sealed class " .. base_name .. " {}"
 	vim.api.nvim_put({ snippet }, "l", true, true)
 
-	-- Move cousor betwen the curly brackets
     get_inside_curly_braces(snippet)
 end
 
 function M.CreateCsharpConstructor()
-	local filepath = vim.fn.getreg("%")
-	local base_name = vim.fn.fnamemodify(filepath, ":t:r")
+    local filepath = vim.api.nvim_buf_get_name(0)
+    local base_name = vim.fn.fnamemodify(filepath, ":t:r")
+    local class_name = base_name
+    local cursor_row = vim.api.nvim_win_get_cursor(0)[1]
 
-	local snippet = "public " .. base_name .. "() {}"
+    for i = cursor_row, 1, -1 do
+        local line = vim.api.nvim_buf_get_lines(0, i - 1, i, false)[1]
+        local found_name = string.match(line, "class%s+([%a_][%w_]*)") 
+                        or string.match(line, "struct%s+([%a_][%w_]*)")
+                        or string.match(line, "record%s+([%a_][%w_]*)")
 
-	vim.api.nvim_put({ snippet }, "l", true, true)
+        if found_name then
+            class_name = found_name
+            break
+        end
+    end
+
+    local snippet = "public " .. class_name .. "() {}"
+
+    vim.api.nvim_put({ snippet }, "l", true, true)
 
     get_inside_curly_braces(snippet)
 end
