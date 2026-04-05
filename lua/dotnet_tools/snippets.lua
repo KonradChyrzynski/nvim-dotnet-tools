@@ -19,50 +19,80 @@ local function get_inside_braces(snippet)
 	vim.api.nvim_feedkeys("ci(", "n", false)
 end
 
+--- Generates and inserts a C# namespace snippet based on the current context.
+--- 
+--- STEP 1: It first attempts to infer the namespace by scanning other `.cs` files 
+--- in the same directory to match their namespace declaration.
+--- 
+--- STEP 2: If no sibling files exist or no namespace is found, it falls back to 
+--- finding the nearest `.csproj` file. It constructs the namespace using the 
+--- project's name and the relative path of the current directory.
+--- 
+--- STEP 3: Finally, it inserts the snippet into the buffer and places the cursor 
+--- inside the curly braces.
 function M.CreateCsharpNamespaceSnippet()
+    -- Default fallback name if no namespace can be determined
     local namespace_name = "Temp"
 
+    -- Get the full absolute path of the current buffer and its directory
     local current_file = vim.api.nvim_buf_get_name(0)
     local current_dir = vim.fn.fnamemodify(current_file, ":h")
 
+    -- STEP 1: Look for other C# files in the same directory
     local cs_files = vim.fn.glob(current_dir .. "/*.cs", false, true)
 
     for _, file in ipairs(cs_files) do
+        -- Skip the file we are currently editing
         if file ~= current_file then
+            -- Safely attempt to read the contents of the sibling file
             local ok, lines = pcall(vim.fn.readfile, file)
             if ok then
+                -- Iterate through the lines to find a namespace declaration
                 for _, line in ipairs(lines) do
+                    -- Regex match: looks for 'namespace' followed by spaces and captures the name
                     local match = string.match(line, "^%s*namespace%s+([%w_%.]+)")
                     if match then
                         namespace_name = match
-                        break
+                        break -- Stop reading lines once a namespace is found
                     end
                 end
             end
         end
+        -- Stop checking other files if we successfully found a namespace
         if namespace_name ~= "Temp" then
             break
         end
     end
 
+    -- STEP 2: Fallback logic using the .csproj file if sibling scan failed
     if namespace_name == "Temp" then
+        -- Find the nearest .csproj file going upwards in the directory tree
         local csproj_path = require("dotnet_tools.finder").find_csproj()
         if csproj_path and csproj_path ~= "" then
+            -- Extract the directory containing the .csproj and the project name itself
             local project_dir = vim.fn.fnamemodify(csproj_path, ":h")
             local project_name = vim.fn.fnamemodify(csproj_path, ":t:r")
 
             if current_dir == project_dir then
+                -- If we are in the root directory of the project, use just the project name
                 namespace_name = project_name
             elseif string.sub(current_dir, 1, #project_dir) == project_dir then
+                -- If we are in a subdirectory, calculate the relative path from the project root
+                -- '+ 2' skips the project directory length and the trailing slash
                 local relative_path = string.sub(current_dir, #project_dir + 2)
+                -- Replace directory separators (slashes/backslashes) with dots
                 local dot_path = relative_path:gsub("[/\\]", ".")
+                -- Concatenate the project name with the dot-separated relative path
                 namespace_name = project_name .. "." .. dot_path
+                -- Optional: Sanitize the namespace by replacing invalid characters (like hyphens) with underscores
                 -- namespace_name = namespace_name:gsub("-", "_"):gsub(" ", "_")
             end
         end
     end
 
     local snippet = string.format("namespace %s {}", namespace_name)
+
+    -- Insert the text into the buffer at the cursor line
     vim.api.nvim_put({ snippet }, "l", true, true)
 
     get_inside_curly_braces(snippet)
