@@ -20,33 +20,50 @@ local function get_inside_braces(snippet)
 end
 
 function M.CreateCsharpNamespaceSnippet()
-	local namespace_name = "Edit"
+    local namespace_name = "Temp"
 
-	local current_file = vim.api.nvim_buf_get_name(0)
-	local current_dir = vim.fn.fnamemodify(current_file, ":h")
+    local current_file = vim.api.nvim_buf_get_name(0)
+    local current_dir = vim.fn.fnamemodify(current_file, ":h")
 
-	local cs_files = vim.fn.glob(current_dir .. "/*.cs", false, true)
+    local cs_files = vim.fn.glob(current_dir .. "/*.cs", false, true)
 
-	for _, file in ipairs(cs_files) do
-		if file ~= current_file then
-			local ok, lines = pcall(vim.fn.readfile, file)
-			if ok then
-				for _, line in ipairs(lines) do
-					local match = string.match(line, "^%s*namespace%s+([%w_%.]+)")
-					if match then
-						namespace_name = match
-						break
-					end
-				end
-			end
-		end
-		if namespace_name ~= "Edit" then
-			break
-		end
-	end
+    for _, file in ipairs(cs_files) do
+        if file ~= current_file then
+            local ok, lines = pcall(vim.fn.readfile, file)
+            if ok then
+                for _, line in ipairs(lines) do
+                    local match = string.match(line, "^%s*namespace%s+([%w_%.]+)")
+                    if match then
+                        namespace_name = match
+                        break
+                    end
+                end
+            end
+        end
+        if namespace_name ~= "Temp" then
+            break
+        end
+    end
 
-	local snippet = string.format("namespace %s {}", namespace_name)
-	vim.api.nvim_put({ snippet }, "l", true, true)
+    if namespace_name == "Temp" then
+        local csproj_path = require("dotnet_tools.finder").find_csproj()
+        if csproj_path and csproj_path ~= "" then
+            local project_dir = vim.fn.fnamemodify(csproj_path, ":h")
+            local project_name = vim.fn.fnamemodify(csproj_path, ":t:r")
+
+            if current_dir == project_dir then
+                namespace_name = project_name
+            elseif string.sub(current_dir, 1, #project_dir) == project_dir then
+                local relative_path = string.sub(current_dir, #project_dir + 2)
+                local dot_path = relative_path:gsub("[/\\]", ".")
+                namespace_name = project_name .. "." .. dot_path
+                -- namespace_name = namespace_name:gsub("-", "_"):gsub(" ", "_")
+            end
+        end
+    end
+
+    local snippet = string.format("namespace %s {}", namespace_name)
+    vim.api.nvim_put({ snippet }, "l", true, true)
 
     get_inside_curly_braces(snippet)
 end
@@ -69,7 +86,7 @@ function M.CreateCsharpConstructor()
 
     for i = cursor_row, 1, -1 do
         local line = vim.api.nvim_buf_get_lines(0, i - 1, i, false)[1]
-        local found_name = string.match(line, "class%s+([%a_][%w_]*)") 
+        local found_name = string.match(line, "class%s+([%a_][%w_]*)")
                         or string.match(line, "struct%s+([%a_][%w_]*)")
                         or string.match(line, "record%s+([%a_][%w_]*)")
 
