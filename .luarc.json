@@ -3,10 +3,31 @@
     "version": "LuaJIT"
   },
   "diagnostics": {
-    "globals": ["vim"]
+    "globals": [
+      "vim",
+      "describe",
+      "it",
+      "before_each",
+      "after_each",
+      "setup",
+      "teardown",
+      "assert",
+      "pending",
+      "stub",
+      "mock",
+      "spy"
+    ]
   },
   "workspace": {
-    "library": ["$VIMRUNTIME/lua", "${3rd}/luv/library"],
+    "library": [
+      "$VIMRUNTIME/lua",
+      "${3rd}/luv/library",
+      "${3rd}/busted/library",
+      "lua"
+    ],
     "checkThirdParty": false
+  },
+  "hint": {
+    "enable": false
   }
 }

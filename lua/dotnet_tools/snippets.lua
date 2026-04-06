@@ -20,15 +20,15 @@ local function get_inside_braces(snippet)
 end
 
 --- Generates and inserts a C# namespace snippet based on the current context.
---- 
---- STEP 1: It first attempts to infer the namespace by scanning other `.cs` files 
+---
+--- STEP 1: It first attempts to infer the namespace by scanning other `.cs` files
 --- in the same directory to match their namespace declaration.
---- 
---- STEP 2: If no sibling files exist or no namespace is found, it falls back to 
---- finding the nearest `.csproj` file. It constructs the namespace using the 
+---
+--- STEP 2: If no sibling files exist or no namespace is found, it falls back to
+--- finding the nearest `.csproj` file. It constructs the namespace using the
 --- project's name and the relative path of the current directory.
---- 
---- STEP 3: Finally, it inserts the snippet into the buffer and places the cursor 
+---
+--- STEP 3: Finally, it inserts the snippet into the buffer and places the cursor
 --- inside the curly braces.
 function M.CreateCsharpNamespaceSnippet()
     -- Default fallback name if no namespace can be determined
