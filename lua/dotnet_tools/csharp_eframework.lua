@@ -27,9 +27,15 @@ function M.run_ef_command(args)
         table.insert(full_args, arg)
     end
 
+    local buf_name = "EF Core Output"
+    local existing_buf = vim.fn.bufnr(buf_name)
+    if existing_buf ~= -1 then
+        vim.api.nvim_buf_delete(existing_buf, { force = true })
+    end
+
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
-    vim.api.nvim_buf_set_name(buf, "EF Core Output")
+    vim.api.nvim_buf_set_name(buf, buf_name)
     local win = vim.api.nvim_open_win(buf, true, {
         relative = "editor",
         width = math.floor(vim.o.columns * 0.8),
@@ -46,7 +52,9 @@ function M.run_ef_command(args)
                 vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
                 -- Scroll to bottom
                 local line_count = vim.api.nvim_buf_line_count(buf)
-                vim.api.nvim_win_set_cursor(win, { line_count, 0 })
+                if vim.api.nvim_win_is_valid(win) then
+                    vim.api.nvim_win_set_cursor(win, { line_count, 0 })
+                end
             end
         end)
     end
