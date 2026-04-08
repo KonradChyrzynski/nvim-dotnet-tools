@@ -2,17 +2,24 @@ local Job = require("plenary.job")
 local M = {}
 
 function M.find_csproj()
-    local dir = vim.fn.expand('%:p:h') -- start from current file's directory
-    for _ = 1, 5 do
-        local csproj = vim.fn.glob(dir .. "/*.csproj", 0, 1)
-        if #csproj > 0 then
-            return csproj[1]
-        end
-        local parent = vim.fn.fnamemodify(dir, ":h")
-        if parent == dir then break end -- reached root or can't go higher
-        dir = parent
+    local current_dir = vim.fn.expand('%:p:h')
+    -- Zabezpieczenie: jeśli jesteś w pustym buforze, użyjemy głównego katalogu roboczego
+    if current_dir == "" then
+        current_dir = vim.fn.getcwd()
     end
-    return ""
+
+    -- Wyszukuje pierwszy plik z końcówką .csproj idąc w górę drzewa
+    local match = vim.fs.find(function(name)
+        return name:match('%.csproj$')
+    end, {
+        upward = true,
+        path = current_dir,
+        type = 'file'
+    })
+
+    -- vim.fs.find zwraca tablicę, więc pobieramy pierwszy element. 
+    -- Jeśli nic nie znajdzie, zwracamy pusty string.
+    return match[1] or ""
 end
 
 function M.search_for_csproj_files(callback)
