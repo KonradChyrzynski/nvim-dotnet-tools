@@ -126,74 +126,158 @@ local function get_project_and_startup(callback)
     end)
 end
 
-function M.add_migration()
-    get_project_and_startup(function(project, startup)
-        vim.ui.input({ prompt = "Migration Name: " }, function(name)
-            if not name or name == "" then return end
-            vim.ui.input({ prompt = "Output Directory: ", default = state.output_dir }, function(out)
-                if not out or out == "" then out = "Migrations" end
-                state.output_dir = out
-                M.run_ef_command({
-                    "migrations", "add", name,
-                    "--project", project,
-                    "--startup-project", startup,
-                    "--output-dir", out
-                })
+function M.add_migration(name, project, startup, out)
+    local function execute(n, p, s, o)
+        M.run_ef_command({
+            "migrations", "add", n,
+            "--project", p,
+            "--startup-project", s,
+            "--output-dir", o
+        })
+    end
+
+    if name and project and startup and out then
+        execute(name, project, startup, out)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
+        vim.ui.input({ prompt = "Migration Name: " }, function(n)
+            if not n or n == "" then return end
+            vim.ui.input({ prompt = "Output Directory: ", default = state.output_dir }, function(o)
+                if not o or o == "" then o = "Migrations" end
+                state.output_dir = o
+                execute(n, p, s, o)
             end)
         end)
     end)
 end
 
-function M.remove_migration()
-    get_project_and_startup(function(project, startup)
+function M.remove_migration(project, startup)
+    local function execute(p, s)
+        M.run_ef_command({
+            "migrations", "remove",
+            "--project", p,
+            "--startup-project", s
+        })
+    end
+
+    if project and startup then
+        execute(project, startup)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
         vim.ui.select({ "No", "Yes" }, { prompt = "Are you sure you want to remove the last migration?" }, function(choice)
             if choice == "Yes" then
-                M.run_ef_command({
-                    "migrations", "remove",
-                    "--project", project,
-                    "--startup-project", startup
-                })
+                execute(p, s)
             end
         end)
     end)
 end
 
-function M.list_migrations()
-    get_project_and_startup(function(project, startup)
+function M.list_migrations(project, startup)
+    local function execute(p, s)
         M.run_ef_command({
             "migrations", "list",
-            "--project", project,
-            "--startup-project", startup
+            "--project", p,
+            "--startup-project", s
         })
+    end
+
+    if project and startup then
+        execute(project, startup)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
+        execute(p, s)
     end)
 end
 
-function M.database_update()
-    get_project_and_startup(function(project, startup)
-        vim.ui.input({ prompt = "Target Migration (optional): " }, function(target)
-            local args = { "database", "update" }
-            if target and target ~= "" then
-                table.insert(args, target)
-            end
-            table.insert(args, "--project")
-            table.insert(args, project)
-            table.insert(args, "--startup-project")
-            table.insert(args, startup)
-            M.run_ef_command(args)
+function M.database_update(target, project, startup)
+    local function execute(t, p, s)
+        local args = { "database", "update" }
+        if t and t ~= "" then
+            table.insert(args, t)
+        end
+        table.insert(args, "--project")
+        table.insert(args, p)
+        table.insert(args, "--startup-project")
+        table.insert(args, s)
+        M.run_ef_command(args)
+    end
+
+    if project and startup then
+        execute(target, project, startup)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
+        vim.ui.input({ prompt = "Target Migration (optional): " }, function(t)
+            execute(t, p, s)
         end)
     end)
 end
 
-function M.database_drop()
-    get_project_and_startup(function(project, startup)
+function M.database_drop(project, startup)
+    local function execute(p, s)
+        M.run_ef_command({
+            "database", "drop", "--force",
+            "--project", p,
+            "--startup-project", s
+        })
+    end
+
+    if project and startup then
+        execute(project, startup)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
         vim.ui.select({ "No", "Yes" }, { prompt = "Are you sure you want to DROP the database?" }, function(choice)
             if choice == "Yes" then
-                M.run_ef_command({
-                    "database", "drop", "--force",
-                    "--project", project,
-                    "--startup-project", startup
-                })
+                execute(p, s)
             end
+        end)
+    end)
+end
+
+function M.script_migration(from, to, output, project, startup)
+    local function execute(f, t, o, p, s)
+        local args = { "migrations", "script" }
+        if f and f ~= "" then
+            table.insert(args, f)
+            if t and t ~= "" then
+                table.insert(args, t)
+            end
+        end
+
+        table.insert(args, "--project")
+        table.insert(args, p)
+        table.insert(args, "--startup-project")
+        table.insert(args, s)
+
+        if o and o ~= "" then
+            table.insert(args, "--output")
+            table.insert(args, o)
+        end
+
+        M.run_ef_command(args)
+    end
+
+    if project and startup then
+        execute(from, to, output, project, startup)
+        return
+    end
+
+    get_project_and_startup(function(p, s)
+        vim.ui.input({ prompt = "From Migration (optional): " }, function(f)
+            vim.ui.input({ prompt = "To Migration (optional): " }, function(t)
+                vim.ui.input({ prompt = "Output File (optional, e.g. script.sql): " }, function(o)
+                    execute(f, t, o, p, s)
+                end)
+            end)
         end)
     end)
 end
@@ -209,6 +293,7 @@ function M.menu()
         "Add Migration",
         "Remove Last Migration",
         "List Migrations",
+        "Script Migration",
         "Update Database",
         "Drop Database",
         "Reset Projects Selection",
@@ -221,6 +306,8 @@ function M.menu()
             M.remove_migration()
         elseif choice == "List Migrations" then
             M.list_migrations()
+        elseif choice == "Script Migration" then
+            M.script_migration()
         elseif choice == "Update Database" then
             M.database_update()
         elseif choice == "Drop Database" then

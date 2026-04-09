@@ -44,12 +44,17 @@ The first time you run a command in a session, the extension will ask you to sel
 - **Command:** `dotnet ef database update [target] --project <P> --startup-project <S>`
 - **Usage:** Sync your database schema with your migrations.
 
-### 5. Drop Database
+### 5. Script Migration
+- **Action:** Prompts for optional from/to migrations and an output file.
+- **Command:** `dotnet ef migrations script [from] [to] --project <P> --startup-project <S> -o <output>`
+- **Usage:** Generates a SQL script from migrations. Useful for manual deployments.
+
+### 6. Drop Database
 - **Action:** Asks for confirmation before completely deleting the database.
 - **Command:** `dotnet ef database drop --force --project <P> --startup-project <S>`
 - **Usage:** **Warning!** Deletes all data and the database itself. Useful for clean resets during development.
 
-### 6. Reset Projects Selection
+### 7. Reset Projects Selection
 - **Action:** Clears the cached Project and Startup Project paths.
 - **Usage:** Use this if you are working in a solution with multiple Contexts or need to switch your Startup project.
 
